@@ -48,7 +48,7 @@ export function same(left: Info, right: Info) {
 
 /** Whether a process is in a zombie/defunct state on Linux. */
 export function isZombie(pid: number) {
-  if (process.platform !== "linux") return false
+  if (process.platform !== "linux" || pid <= 0) return false
   try {
     const stat = readFileSync(`/proc/${pid}/stat`, "utf8")
     const closeParen = stat.lastIndexOf(")")

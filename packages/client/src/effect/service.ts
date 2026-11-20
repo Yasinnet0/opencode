@@ -72,6 +72,11 @@ export const ensure = Effect.fn("service.ensure")(function* (options: EnsureOpti
     const registration = yield* registered(options.file, timing.requestTimeout)
     const info = registration.info
     const service = registration.service
+    if (info !== undefined && isZombie(info.pid)) {
+      const fs = yield* FileSystem.FileSystem
+      yield* fs.remove(options.file ?? fallback()).pipe(Effect.ignore)
+      pool.recruitNow()
+    }
     if (registration.timedOut && info !== undefined) {
       timeouts = {
         info,

@@ -56,4 +56,7 @@ test("a version mismatch replaces the service, handing off terminals only when i
 test("isZombie reports whether a process is in a zombie state", () => {
   expect(isZombie(process.pid)).toBe(false)
   expect(isZombie(-1)).toBe(false)
+  expect(isZombie(0)).toBe(false)
+  expect(isZombie(NaN)).toBe(false)
+  expect(isZombie(999_999_999)).toBe(false)
 })

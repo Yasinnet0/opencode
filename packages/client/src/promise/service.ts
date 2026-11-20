@@ -52,6 +52,10 @@ export async function ensure(options: EnsureOptions = {}): Promise<Endpoint> {
       if (Date.now() >= deadline)
         throw pool.failure() ?? new Error("Timed out waiting for the background service to start")
       const registration = await registered(options.file, timing.requestTimeout)
+      if (registration.info !== undefined && isZombie(registration.info.pid)) {
+        await rm(options.file ?? fallback(), { force: true })
+        pool.recruitNow()
+      }
       if (registration.timedOut && registration.info !== undefined) {
         timeouts = {
           info: registration.info,
