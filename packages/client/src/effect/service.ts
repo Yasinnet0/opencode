@@ -4,7 +4,7 @@ import { contenderPool, spawnServiceContender } from "../service-contender.js"
 import { defaultEnsureTiming, ensureTiming, type EnsureTiming } from "../service-timing.js"
 import { matchesVersion } from "../service-version.js"
 import { PtyHandoff } from "../pty-handoff.js"
-import { decide, fallback, headers, probeResult, same } from "../service-probe.js"
+import { decide, fallback, headers, isZombie, probeResult, same } from "../service-probe.js"
 
 export * from "../service.js"
 export { headers }
@@ -175,7 +175,7 @@ const stopped = Effect.fnUntraced(function* (pid: number) {
   const running = yield* Effect.try({ try: () => process.kill(pid, 0), catch: () => false }).pipe(
     Effect.orElseSucceed(() => false),
   )
-  if (!running) return true
+  if (!running || isZombie(pid)) return true
   return yield* Effect.fail(new Error(`Server process ${pid} is still running`))
 })
 

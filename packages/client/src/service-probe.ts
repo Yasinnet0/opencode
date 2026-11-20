@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { homedir } from "node:os"
 import { join } from "node:path"
 import type { DiscoverOptions, Endpoint, Info } from "./service.js"
@@ -43,6 +44,20 @@ export function fallback() {
 /** Whether two registrations describe the same service instance. */
 export function same(left: Info, right: Info) {
   return left.id === right.id && left.version === right.version && left.url === right.url && left.pid === right.pid
+}
+
+/** Whether a process is in a zombie/defunct state on Linux. */
+export function isZombie(pid: number) {
+  if (process.platform !== "linux") return false
+  try {
+    const stat = readFileSync(`/proc/${pid}/stat`, "utf8")
+    const closeParen = stat.lastIndexOf(")")
+    if (closeParen === -1) return false
+    const state = stat.slice(closeParen + 2).trimStart()[0]
+    return state === "Z"
+  } catch {
+    return false
+  }
 }
 
 /** Ask a registered owner for its health and classify the answer. */

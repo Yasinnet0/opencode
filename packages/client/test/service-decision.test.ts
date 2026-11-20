@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import { decide, type LocalService } from "../src/service-probe"
+import { decide, isZombie, type LocalService } from "../src/service-probe"
 
 const protocolError =
   "Background service uses an incompatible health protocol. Update this client or explicitly restart the service."
@@ -51,4 +51,9 @@ test("a version mismatch replaces the service, handing off terminals only when i
     _tag: "replace",
     pty: "clear",
   })
+})
+
+test("isZombie reports whether a process is in a zombie state", () => {
+  expect(isZombie(process.pid)).toBe(false)
+  expect(isZombie(-1)).toBe(false)
 })
